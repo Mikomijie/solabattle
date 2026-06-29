@@ -1,16 +1,34 @@
 {
   "name": "battle-game",
   "version": "1.0.0",
-  "description": "",
+  "description": "SolaBattle - 1v1 Solana Battle Arena",
   "main": "index.js",
-  "directories": {
-    "test": "tests"
-  },
   "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
+  "keywords": [
+    "solana",
+    "game",
+    "blockchain"
+  ],
   "author": "",
   "license": "ISC",
-  "type": "commonjs"
+  "type": "module",
+  "dependencies": {
+    "@solana/wallet-adapter-react": "^0.15.35",
+    "@solana/wallet-adapter-react-ui": "^0.9.35",
+    "@solana/wallet-adapter-wallets": "^0.19.30",
+    "@solana/web3.js": "^1.98.0",
+    "next": "^14.2.35",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "@types/react": "^18.0.0",
+    "typescript": "^5.0.0"
+  }
 }
