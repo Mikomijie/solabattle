@@ -18,13 +18,18 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "@solana/codecs": "^6.10.0",
+    "@solana/codecs-data-structures": "^6.10.0",
     "@solana/wallet-adapter-react": "^0.15.35",
     "@solana/wallet-adapter-react-ui": "^0.9.35",
     "@solana/wallet-adapter-wallets": "^0.19.30",
     "@solana/web3.js": "^1.98.0",
+    "autoprefixer": "^10.5.2",
     "next": "^14.2.35",
+    "postcss": "^8.5.16",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "tailwindcss": "^3.4.19"
   },
   "devDependencies": {
     "@types/node": "^18.0.0",
