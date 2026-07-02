@@ -16,7 +16,7 @@
   ],
   "author": "",
   "license": "ISC",
-  "type": "module",
+  "type": "commonjs",
   "dependencies": {
     "@solana/codecs": "^6.10.0",
     "@solana/codecs-data-structures": "^6.10.0",
