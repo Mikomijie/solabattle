@@ -353,6 +353,9 @@ function BattleScreen({ setPage }: WalletProps) {
   const [timer, setTimer] = useState(60);
   const [over, setOver] = useState(false);
   const [winner, setWinner] = useState('');
+  const [resolving, setResolving] = useState(false);
+  const [lastPlayerMove, setLastPlayerMove] = useState<string | null>(null);
+  const [popup, setPopup] = useState<{ side: 'player' | 'opp'; value: number } | null>(null);
 
   useEffect(() => {
     if (over) return;
@@ -360,28 +363,87 @@ function BattleScreen({ setPage }: WalletProps) {
     return () => clearInterval(t);
   }, [over]);
 
-const act = (type: 'attack' | 'defend' | 'special') => {
-    if (over) return;
-    const dmg = type === 'special' ? 25 : type === 'attack' ? Math.floor(Math.random() * 10) + 10 : 0;
-    const move = type === 'attack' ? 'KINETIC STRIKE' : type === 'defend' ? 'DEFENSIVE STANCE' : 'OVERLOAD CIRCUIT';
-    const newOpp = Math.max(0, oppHP - dmg);
-    setOppHP(newOpp);
-    setLog(prev => [...prev, `>> PLAYER executes ${move}`, dmg > 0 ? `>> OPPONENT receives ${dmg} DMG` : `>> Damage mitigated`]);
-    if (newOpp === 0) { setOver(true); setWinner('You'); setLog(prev => [...prev, '>> VICTORY: Opponent eliminated']); return; }
-    // End the fight after round 5 no matter what, so it doesn't drag on
-    if (round >= 5) {
-      setOver(true);
-      setWinner(playerHP >= oppHP ? 'You' : 'Opponent');
-      return;
+const moveNames: Record<string, string> = {
+    attack: 'KINETIC STRIKE',
+    defend: 'DEFENSIVE STANCE',
+    special: 'OVERLOAD CIRCUIT',
+  };
+
+  const pickAiMove = (): 'attack' | 'defend' | 'special' => {
+    const counters: Record<string, 'attack' | 'defend' | 'special'> = {
+      attack: 'defend',
+      defend: 'special',
+      special: 'attack',
+    };
+    if (lastPlayerMove && Math.random() < 0.5) {
+      return counters[lastPlayerMove];
     }
+    const choices: Array<'attack' | 'defend' | 'special'> = ['attack', 'defend', 'special'];
+    return choices[Math.floor(Math.random() * 3)];
+  };
+
+  const act = (type: 'attack' | 'defend' | 'special') => {
+    if (over || resolving) return;
+    setResolving(true);
+    setLog(prev => [...prev, `>> PLAYER selects ${moveNames[type]}...`, '>> Opponent is deciding...']);
+
     setTimeout(() => {
-      const eDmg = type === 'defend' ? Math.floor(Math.random() * 5) + 2 : Math.floor(Math.random() * 10) + 8;
-      const newP = Math.max(0, playerHP - eDmg);
-      setPlayerHP(newP);
-      setRound(r => r + 1);
-      setTimer(60);
-      setLog(prev => [...prev, `>> OPPONENT counters! ${eDmg} DMG taken`, '>> Syncing results to Solana Devnet...']);
-      if (newP === 0) { setOver(true); setWinner('Opponent'); }
+      const aiMove = pickAiMove();
+      setLog(prev => [...prev, `>> OPPONENT selects ${moveNames[aiMove]}!`]);
+
+      let playerDmgTaken = 0;
+      let oppDmgTaken = 0;
+      let resultMsg = '';
+
+      if (type === aiMove) {
+        if (type === 'defend') {
+          resultMsg = '>> Both hold guard — no damage exchanged';
+        } else {
+          const base = type === 'special' ? 22 : 14;
+          playerDmgTaken = base;
+          oppDmgTaken = base;
+          resultMsg = `>> Clash! Both take ${base} DMG`;
+        }
+      } else if (
+        (type === 'attack' && aiMove === 'special') ||
+        (type === 'defend' && aiMove === 'attack') ||
+        (type === 'special' && aiMove === 'defend')
+      ) {
+        oppDmgTaken = type === 'special' ? 28 : type === 'attack' ? 18 : 12;
+        resultMsg = `>> Your ${moveNames[type]} overpowers them! OPPONENT takes ${oppDmgTaken} DMG`;
+      } else {
+        playerDmgTaken = aiMove === 'special' ? 28 : aiMove === 'attack' ? 18 : 12;
+        resultMsg = `>> Their ${moveNames[aiMove]} catches you off guard! You take ${playerDmgTaken} DMG`;
+      }
+
+      setTimeout(() => {
+        const newOpp = Math.max(0, oppHP - oppDmgTaken);
+        const newP = Math.max(0, playerHP - playerDmgTaken);
+
+        if (oppDmgTaken > 0) setPopup({ side: 'opp', value: oppDmgTaken });
+        if (playerDmgTaken > 0) setPopup({ side: 'player', value: playerDmgTaken });
+
+        setOppHP(newOpp);
+        setPlayerHP(newP);
+        setLastPlayerMove(type);
+        setLog(prev => [...prev, resultMsg, '>> Syncing results to Solana Devnet...']);
+
+        setTimeout(() => setPopup(null), 900);
+
+        if (newOpp === 0) { setOver(true); setWinner('You'); setLog(prev => [...prev, '>> VICTORY: Opponent eliminated']); setResolving(false); return; }
+        if (newP === 0) { setOver(true); setWinner('Opponent'); setLog(prev => [...prev, '>> DEFEAT: You have fallen']); setResolving(false); return; }
+
+        if (round >= 5) {
+          setOver(true);
+          setWinner(newP >= newOpp ? 'You' : 'Opponent');
+          setResolving(false);
+          return;
+        }
+
+        setRound(r => r + 1);
+        setTimer(60);
+        setResolving(false);
+      }, 500);
     }, 700);
   };
   if (over) {
@@ -445,8 +507,11 @@ const act = (type: 'attack' | 'defend' | 'special') => {
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 4 }}>
             <span>Health</span><strong>{playerHP}/100</strong>
           </div>
-          <div style={{ background: colors.surfaceContainer, borderRadius: 4, height: 8, marginBottom: 14 }}>
+          <div style={{ position: 'relative', background: colors.surfaceContainer, borderRadius: 4, height: 8, marginBottom: 14 }}>
             <div style={{ background: colors.primaryContainer, width: `${playerHP}%`, height: '100%', borderRadius: 4, transition: 'width 0.3s' }} />
+            {popup?.side === 'player' && (
+              <span style={{ position: 'absolute', right: 0, top: -22, color: colors.error, fontWeight: 800, fontSize: 14 }}>-{popup.value}</span>
+            )}
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 6 }}>
             {[{ l: 'ATK', v: 20 }, { l: 'DEF', v: 10 }, { l: 'SPD', v: 18 }].map(s => (
@@ -474,8 +539,11 @@ const act = (type: 'attack' | 'defend' | 'special') => {
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 4 }}>
             <span>Health</span><strong>{oppHP}/100</strong>
           </div>
-          <div style={{ background: colors.surfaceContainer, borderRadius: 4, height: 8, marginBottom: 14 }}>
+          <div style={{ position: 'relative', background: colors.surfaceContainer, borderRadius: 4, height: 8, marginBottom: 14 }}>
             <div style={{ background: colors.tertiary, width: `${oppHP}%`, height: '100%', borderRadius: 4, transition: 'width 0.3s' }} />
+            {popup?.side === 'opp' && (
+              <span style={{ position: 'absolute', right: 0, top: -22, color: colors.error, fontWeight: 800, fontSize: 14 }}>-{popup.value}</span>
+            )}
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 6 }}>
             {[{ l: 'ATK', v: 19 }, { l: 'DEF', v: 11 }, { l: 'SPD', v: 17 }].map(s => (
@@ -489,15 +557,15 @@ const act = (type: 'attack' | 'defend' | 'special') => {
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12, padding: '0 32px 32px' }}>
-        <button onClick={() => act('attack')} style={{ background: colors.tertiaryContainer, color: '#fff', border: 'none', borderRadius: 10, padding: 18, display: 'flex', alignItems: 'center', gap: 12, textAlign: 'left' }}>
+       <button onClick={() => act('attack')} disabled={resolving} style={{ background: colors.tertiaryContainer, color: '#fff', border: 'none', borderRadius: 10, padding: 18, display: 'flex', alignItems: 'center', gap: 12, textAlign: 'left', opacity: resolving ? 0.5 : 1, cursor: resolving ? 'not-allowed' : 'pointer' }}>
           <Icon name="swords" size={26} />
           <div><div style={{ fontWeight: 800 }}>ATTACK</div><div style={{ fontSize: 12, opacity: 0.85 }}>High impact burst</div></div>
         </button>
-        <button onClick={() => act('defend')} style={{ background: '#1e293b', color: '#fff', border: 'none', borderRadius: 10, padding: 18, display: 'flex', alignItems: 'center', gap: 12, textAlign: 'left' }}>
+        <button onClick={() => act('defend')} disabled={resolving} style={{ background: '#1e293b', color: '#fff', border: 'none', borderRadius: 10, padding: 18, display: 'flex', alignItems: 'center', gap: 12, textAlign: 'left', opacity: resolving ? 0.5 : 1, cursor: resolving ? 'not-allowed' : 'pointer' }}>
           <Icon name="shield" size={26} />
           <div><div style={{ fontWeight: 800 }}>DEFEND</div><div style={{ fontSize: 12, opacity: 0.85 }}>Fortify, neutralize</div></div>
         </button>
-        <button onClick={() => act('special')} style={{ background: colors.primaryContainer, color: '#fff', border: 'none', borderRadius: 10, padding: 18, display: 'flex', alignItems: 'center', gap: 12, textAlign: 'left' }}>
+        <button onClick={() => act('special')} disabled={resolving} style={{ background: colors.primaryContainer, color: '#fff', border: 'none', borderRadius: 10, padding: 18, display: 'flex', alignItems: 'center', gap: 12, textAlign: 'left', opacity: resolving ? 0.5 : 1, cursor: resolving ? 'not-allowed' : 'pointer' }}>
           <Icon name="bolt" size={26} />
           <div><div style={{ fontWeight: 800 }}>SPECIAL</div><div style={{ fontSize: 12, opacity: 0.85 }}>Overload circuit</div></div>
         </button>
