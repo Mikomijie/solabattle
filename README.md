@@ -20,8 +20,8 @@ A 1v1 turn-based combat game with real Solana wallet integration. Connect your P
 - **Blockchain:** Solana Devnet
 - **Styling:** Inline styles + Material Symbols icons
 - **UI Design Reference:** Google Stitch
-
 ## Project Structure
+```
 battle-game/
 ├── app/
 │   ├── page.tsx          # All screens: Home, Dashboard, Battle, Leaderboard, How to Play
@@ -31,6 +31,7 @@ battle-game/
 ├── programs/battle-game/ # Anchor smart contract (source code, not yet deployed to devnet)
 │   └── src/lib.rs
 └── package.json
+ ```
 ## How to Run Locally
 1. `npm install`
 2. `npm run dev`

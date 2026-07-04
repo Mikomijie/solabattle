@@ -489,7 +489,15 @@ const moveNames: Record<string, string> = {
                 <div style={{ fontWeight: 700, color: colors.secondary, marginBottom: 2 }}>+10 Tokens Earned!</div>
                 <div style={{ fontWeight: 600, color: colors.primary, fontSize: 13, marginBottom: 8 }}>+20 XP gained</div>
                 {txSignature && (
-                  
+                  <a
+                  href={`https://explorer.solana.com/tx/${txSignature}?cluster=devnet`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: colors.secondary, fontSize: 12, textDecoration: 'underline' }}
+                  >
+                    View on-chain proof →
+                    </a>
+                    )}
                     href={`https://explorer.solana.com/tx/${txSignature}?cluster=devnet`}
                     target="_blank"
                     rel="noopener noreferrer"
