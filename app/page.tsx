@@ -5,6 +5,7 @@ import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { LAMPORTS_PER_SOL, Transaction } from '@solana/web3.js';
 import { createMemoInstruction } from '@solana/spl-memo';
+
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
@@ -15,6 +16,7 @@ function useIsMobile() {
   }, []);
   return isMobile;
 }
+
 // ============ DESIGN TOKENS ============
 const colors = {
   primary: '#3525cd',
@@ -99,7 +101,7 @@ function HomeScreen({ setPage, connected, address, balance, onConnectClick }: Wa
             Battle real opponents on Solana. Win tokens. Climb the ranks.
           </p>
           <div style={{ display: 'flex', gap: 12 }}>
-            <button onClick={() => setPage(connected ? 'dashboard' : 'dashboard')} style={{
+            <button onClick={() => setPage('dashboard')} style={{
               background: colors.primaryContainer, color: colors.onPrimary, border: 'none',
               borderRadius: 8, padding: '14px 28px', fontWeight: 700, fontSize: 15,
             }}>Enter Arena</button>
@@ -176,7 +178,7 @@ function HomeScreen({ setPage, connected, address, balance, onConnectClick }: Wa
           <div style={{ fontWeight: 700, color: colors.primary }}>SolaBattle</div>
           <div style={{ color: colors.onSurfaceVariant }}>© 2026 SolaBattle. All combat is final.</div>
         </div>
-        <div style={{ textAlign: 'right' }}>
+        <div style={{ textAlign: isMobile ? 'left' as const : 'right' as const }}>
           <div style={{ color: colors.secondary, fontWeight: 600 }}>● Solana Devnet: Operational</div>
           <div style={{ color: colors.onSurfaceVariant, display: 'flex', gap: 16, marginTop: 4 }}>
             <span>Privacy</span><span>Terms</span><span>Support</span>
@@ -204,8 +206,8 @@ function DashboardScreen({ setPage, connected, address, balance, onConnectClick,
   ];
 
   return (
-  <div style={{ background: colors.background, minHeight: '100vh', display: 'flex', flexDirection: isMobile ? 'column' : 'row', color: colors.onSurface }}>
-      <aside style={{ width: isMobile ? '100%' : 260, borderRight: isMobile ? 'none' : `1px solid ${colors.outlineVariant}`, borderBottom: isMobile ? `1px solid ${colors.outlineVariant}` : 'none', display: 'flex', flexDirection: 'column', padding: '20px 16px', position: isMobile ? 'static' : 'sticky', top: 0, height: isMobile ? 'auto' : '100vh' }}>
+    <div style={{ background: colors.background, minHeight: '100vh', display: 'flex', flexDirection: isMobile ? 'column' as const : 'row' as const, color: colors.onSurface }}>
+      <aside style={{ width: isMobile ? '100%' : 260, borderRight: isMobile ? 'none' : `1px solid ${colors.outlineVariant}`, borderBottom: isMobile ? `1px solid ${colors.outlineVariant}` : 'none', display: 'flex', flexDirection: 'column', padding: '20px 16px', position: isMobile ? 'static' as const : 'sticky' as const, top: 0, height: isMobile ? 'auto' : '100vh' }}>
         <span onClick={() => setPage('home')} style={{ fontSize: 20, fontWeight: 800, color: colors.primary, marginBottom: 24, cursor: 'pointer' }}>SolaBattle</span>
 
         <div style={{ background: colors.surfaceContainerLow, borderRadius: 12, padding: 14, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, marginBottom: 20 }}>
@@ -238,7 +240,8 @@ function DashboardScreen({ setPage, connected, address, balance, onConnectClick,
             }}>Connect Wallet</button>
           )}
         </div>
-{!isMobile && navItems.map(item => (
+
+        {!isMobile && navItems.map(item => (
           <div key={item.label} onClick={() => item.page && setPage(item.page)} style={{
             display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px', borderRadius: 8, marginBottom: 4, cursor: 'pointer',
             background: item.active ? colors.primaryContainer : 'transparent',
@@ -252,12 +255,12 @@ function DashboardScreen({ setPage, connected, address, balance, onConnectClick,
         {!isMobile && <div style={{ flex: 1 }} />}
         <button onClick={() => setPage('battle')} style={{
           background: colors.primaryContainer, color: '#fff', border: 'none', borderRadius: 10,
-          padding: '13px', fontWeight: 700, fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+          padding: '13px', fontWeight: 700, fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: isMobile ? 16 : 0,
         }}><Icon name="smart_toy" size={18} />Battle the AI Champion</button>
       </aside>
 
-      <main style={{ flex: 1, padding: '32px 40px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28 }}>
+      <main style={{ flex: 1, padding: isMobile ? '20px' : '32px 40px', minWidth: 0 }}>
+        <div style={{ display: 'flex', flexDirection: isMobile ? 'column' as const : 'row' as const, gap: isMobile ? 10 : 0, justifyContent: 'space-between', alignItems: isMobile ? 'flex-start' as const : 'center' as const, marginBottom: 28 }}>
           <span style={{ color: colors.onSurfaceVariant, fontSize: 15 }}>
             Welcome back, <strong style={{ color: colors.onSurface }}>{connected && address ? truncateAddress(address) : '[not connected]'}</strong>
           </span>
@@ -266,7 +269,7 @@ function DashboardScreen({ setPage, connected, address, balance, onConnectClick,
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 24 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: 16, marginBottom: 24 }}>
           <div style={{ background: '#fff', border: `1px solid ${colors.outlineVariant}`, borderRadius: 12, padding: 20 }}>
             <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.05em', color: colors.onSurfaceVariant }}>RECORD</span>
             <div style={{ fontSize: 28, fontWeight: 800, margin: '6px 0' }}>12W — 5L</div>
@@ -294,7 +297,7 @@ function DashboardScreen({ setPage, connected, address, balance, onConnectClick,
           padding: 18, fontWeight: 700, fontSize: 16, marginBottom: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
         }}><Icon name="bolt" size={20} />Find New Opponent</button>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 24 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 280px', gap: 24 }}>
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 14 }}>
               <h3 style={{ fontSize: 18, fontWeight: 700, margin: 0 }}>Recent Matches</h3>
@@ -302,12 +305,12 @@ function DashboardScreen({ setPage, connected, address, balance, onConnectClick,
             </div>
             {matches.map((m, i) => (
               <div key={i} style={{
-                display: 'flex', alignItems: 'center', gap: 14, padding: '14px 18px', background: '#fff',
+                display: 'flex', alignItems: 'center', gap: 14, padding: '14px 18px', background: '#fff', flexWrap: 'wrap' as const,
                 border: `1px solid ${colors.outlineVariant}`, borderLeft: `3px solid ${m.win ? colors.secondary : colors.error}`,
                 borderRadius: 10, marginBottom: 10,
               }}>
                 <Icon name={m.win ? 'check_circle' : 'cancel'} size={22} style={{ color: m.win ? colors.secondary : colors.error }} />
-                <div style={{ flex: 1 }}>
+                <div style={{ flex: 1, minWidth: 150 }}>
                   <div style={{ fontWeight: 600, fontSize: 14 }}>{m.result} vs {m.opp}</div>
                   <div style={{ color: colors.onSurfaceVariant, fontSize: 12 }}>{m.time}</div>
                 </div>
@@ -343,9 +346,9 @@ function DashboardScreen({ setPage, connected, address, balance, onConnectClick,
           </div>
         </div>
 
-        <footer style={{ marginTop: 32, paddingTop: 16, borderTop: `1px solid ${colors.outlineVariant}`, display: 'flex', justifyContent: 'space-between', color: colors.onSurfaceVariant, fontSize: 12 }}>
+        <footer style={{ marginTop: 32, paddingTop: 16, borderTop: `1px solid ${colors.outlineVariant}`, display: 'flex', flexDirection: isMobile ? 'column' as const : 'row' as const, gap: isMobile ? 10 : 0, justifyContent: 'space-between', color: colors.onSurfaceVariant, fontSize: 12 }}>
           <span>© 2026 SolaBattle</span>
-          <div style={{ display: 'flex', gap: 16 }}>
+          <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' as const }}>
             <span style={{ color: colors.secondary }}>● Network: Solana Devnet</span>
             <span>Support</span>
             <span>Rules of Combat</span>
@@ -358,6 +361,7 @@ function DashboardScreen({ setPage, connected, address, balance, onConnectClick,
 
 // ============ BATTLE SCREEN ============
 function BattleScreen({ setPage, onRecordResult }: WalletProps) {
+  const isMobile = useIsMobile();
   const [playerHP, setPlayerHP] = useState(100);
   const [oppHP, setOppHP] = useState(100);
   const [log, setLog] = useState<string[]>(['>> Initializing Neural Combat Link... [SUCCESS]', '>> Validating Block State... [OK]']);
@@ -369,13 +373,14 @@ function BattleScreen({ setPage, onRecordResult }: WalletProps) {
   const [lastPlayerMove, setLastPlayerMove] = useState<string | null>(null);
   const [popup, setPopup] = useState<{ side: 'player' | 'opp'; value: number } | null>(null);
   const [txSignature, setTxSignature] = useState<string | null>(null);
+
   useEffect(() => {
     if (over) return;
     const t = setInterval(() => setTimer(p => (p > 0 ? p - 1 : 0)), 1000);
     return () => clearInterval(t);
   }, [over]);
 
-const moveNames: Record<string, string> = {
+  const moveNames: Record<string, string> = {
     attack: 'KINETIC STRIKE',
     defend: 'DEFENSIVE STANCE',
     special: 'OVERLOAD CIRCUIT',
@@ -476,17 +481,18 @@ const moveNames: Record<string, string> = {
       }, 500);
     }, 700);
   };
+
   if (over) {
     const won = winner === 'You';
     return (
-      <div style={{ background: colors.surfaceContainerLow, minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: colors.onSurface }}>
-        <div style={{ background: '#fff', borderRadius: 16, padding: 40, maxWidth: 420, width: '100%', textAlign: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', border: `1px solid ${colors.outlineVariant}` }}>
+      <div style={{ background: colors.surfaceContainerLow, minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: colors.onSurface, padding: isMobile ? 16 : 0 }}>
+        <div style={{ background: '#fff', borderRadius: 16, padding: isMobile ? 24 : 40, maxWidth: 420, width: '100%', textAlign: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', border: `1px solid ${colors.outlineVariant}` }}>
           <div style={{
             width: 64, height: 64, borderRadius: '50%', margin: '0 auto 16px',
             background: won ? 'rgba(78,222,163,0.15)' : 'rgba(186,26,26,0.1)',
             display: 'flex', alignItems: 'center', justifyContent: 'center', color: won ? colors.secondary : colors.error,
           }}><Icon name={won ? 'military_tech' : 'sentiment_dissatisfied'} size={36} /></div>
-          <h1 style={{ fontSize: 36, fontWeight: 800, margin: '0 0 8px' }}>{won ? 'YOU WON!' : 'YOU LOST'}</h1>
+          <h1 style={{ fontSize: isMobile ? 28 : 36, fontWeight: 800, margin: '0 0 8px' }}>{won ? 'YOU WON!' : 'YOU LOST'}</h1>
           <p style={{ color: colors.onSurfaceVariant, marginBottom: 24 }}>{won ? 'Victory belongs to the swift.' : 'Better luck next time, warrior.'}</p>
 
           <div style={{ background: colors.surfaceContainerLow, borderRadius: 10, padding: 18, marginBottom: 24, textAlign: 'left' }}>
@@ -500,12 +506,12 @@ const moveNames: Record<string, string> = {
                 <div style={{ fontWeight: 600, color: colors.primary, fontSize: 13, marginBottom: 8 }}>+20 XP gained</div>
                 {txSignature && (
                   <a
-                  href = {`https://explorer.solana.com/tx/${txSignature}?cluster=devnet`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ color: colors.secondary, fontSize: 12, textDecoration: 'underline' }}
+                    href={`https://explorer.solana.com/tx/${txSignature}?cluster=devnet`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: colors.secondary, fontSize: 12, textDecoration: 'underline' }}
                   >
-                   View on-chain proof →
+                    View on-chain proof →
                   </a>
                 )}
               </>
@@ -530,14 +536,14 @@ const moveNames: Record<string, string> = {
 
   return (
     <div style={{ background: colors.background, minHeight: '100vh', color: colors.onSurface }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 32px', borderBottom: `1px solid ${colors.outlineVariant}` }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap' as const, justifyContent: 'space-between', alignItems: 'center', gap: 8, padding: isMobile ? '12px 16px' : '14px 32px', borderBottom: `1px solid ${colors.outlineVariant}` }}>
         <span style={{ background: colors.primaryContainer, color: '#fff', borderRadius: 6, padding: '5px 12px', fontWeight: 700, fontSize: 13 }}>ROUND {round} OF 5</span>
         <span style={{ display: 'flex', alignItems: 'center', gap: 6, color: colors.secondary, fontSize: 13, fontWeight: 600 }}>● Network: Solana Devnet</span>
-        <span style={{ fontWeight: 700, fontSize: 14 }}>ID: #A4F2</span>
+        {!isMobile && <span style={{ fontWeight: 700, fontSize: 14 }}>ID: #A4F2</span>}
         <span style={{ color: colors.tertiary, fontWeight: 800, fontSize: 18 }}>{timer}s</span>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.4fr 1fr', gap: 20, padding: '24px 32px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1.4fr 1fr', gap: 20, padding: isMobile ? '16px' : '24px 32px' }}>
         <div style={{ textAlign: 'center' }}>
           <div style={{ width: 88, height: 88, borderRadius: '50%', background: colors.primary, margin: '0 auto 12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Icon name="shield_person" size={44} style={{ color: '#fff' }} />
@@ -563,7 +569,7 @@ const moveNames: Record<string, string> = {
           </div>
         </div>
 
-        <div style={{ background: '#fff', border: `1px solid ${colors.outlineVariant}`, borderRadius: 12, padding: 16, height: 320, overflowY: 'auto' }}>
+        <div style={{ background: '#fff', border: `1px solid ${colors.outlineVariant}`, borderRadius: 12, padding: 16, height: isMobile ? 220 : 320, overflowY: 'auto' as const, order: isMobile ? 3 : 0 }}>
           <div style={{ fontWeight: 700, fontSize: 12, letterSpacing: '0.05em', color: colors.onSurfaceVariant, marginBottom: 10 }}>BATTLE PROTOCOL LOG</div>
           {log.map((l, i) => (
             <div key={i} style={{ fontFamily: 'monospace', fontSize: 12, padding: '6px 0', color: l.includes('PLAYER') ? colors.primary : l.includes('OPPONENT') ? colors.tertiary : colors.onSurfaceVariant }}>{l}</div>
@@ -596,8 +602,8 @@ const moveNames: Record<string, string> = {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12, padding: '0 32px 32px' }}>
-       <button onClick={() => act('attack')} disabled={resolving} style={{ background: colors.tertiaryContainer, color: '#fff', border: 'none', borderRadius: 10, padding: 18, display: 'flex', alignItems: 'center', gap: 12, textAlign: 'left', opacity: resolving ? 0.5 : 1, cursor: resolving ? 'not-allowed' : 'pointer' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3,1fr)', gap: 12, padding: isMobile ? '0 16px 16px' : '0 32px 32px' }}>
+        <button onClick={() => act('attack')} disabled={resolving} style={{ background: colors.tertiaryContainer, color: '#fff', border: 'none', borderRadius: 10, padding: 18, display: 'flex', alignItems: 'center', gap: 12, textAlign: 'left', opacity: resolving ? 0.5 : 1, cursor: resolving ? 'not-allowed' : 'pointer' }}>
           <Icon name="swords" size={26} />
           <div><div style={{ fontWeight: 800 }}>ATTACK</div><div style={{ fontSize: 12, opacity: 0.85 }}>High impact burst</div></div>
         </button>
@@ -616,6 +622,7 @@ const moveNames: Record<string, string> = {
 
 // ============ LEADERBOARD SCREEN ============
 function LeaderboardScreen({ setPage }: WalletProps) {
+  const isMobile = useIsMobile();
   const [tab, setTab] = useState<'all' | 'week' | 'month'>('all');
 
   const navItems = [
@@ -642,9 +649,11 @@ function LeaderboardScreen({ setPage }: WalletProps) {
     { rank: 10, name: 'ChainReax', wins: 25, losses: 28, winRate: 47, sol: '31.05' },
   ];
 
+  const columns = isMobile ? '40px 1fr 60px 60px' : '60px 1fr 80px 80px 140px 120px';
+
   const Row = ({ p, highlight = false }: { p: typeof topThree[0]; highlight?: boolean }) => (
     <div style={{
-      display: 'grid', gridTemplateColumns: '60px 1fr 80px 80px 140px 120px',
+      display: 'grid', gridTemplateColumns: columns,
       alignItems: 'center', padding: '16px 20px',
       borderBottom: `1px solid ${colors.outlineVariant}`,
       background: highlight ? 'rgba(79,70,229,0.06)' : 'transparent',
@@ -659,18 +668,20 @@ function LeaderboardScreen({ setPage }: WalletProps) {
       <span style={{ fontWeight: highlight ? 700 : 600, fontSize: 14, color: highlight ? colors.primary : colors.onSurface }}>{p.name}</span>
       <span style={{ color: colors.secondary, fontWeight: 600 }}>{p.wins}W</span>
       <span style={{ color: colors.onSurfaceVariant }}>{p.losses}L</span>
-      <span style={{
-        fontSize: 12, fontWeight: 700, padding: '3px 10px', borderRadius: 20, width: 'fit-content',
-        background: p.winRate >= 70 ? 'rgba(78,222,163,0.15)' : highlight ? 'rgba(79,70,229,0.12)' : 'transparent',
-        color: p.winRate >= 70 ? colors.secondary : highlight ? colors.primary : colors.onSurfaceVariant,
-      }}>{p.winRate}% Win Rate</span>
-      <span style={{ textAlign: 'right', color: colors.primary, fontWeight: 700 }}>{p.sol} SOL</span>
+      {!isMobile && (
+        <span style={{
+          fontSize: 12, fontWeight: 700, padding: '3px 10px', borderRadius: 20, width: 'fit-content',
+          background: p.winRate >= 70 ? 'rgba(78,222,163,0.15)' : highlight ? 'rgba(79,70,229,0.12)' : 'transparent',
+          color: p.winRate >= 70 ? colors.secondary : highlight ? colors.primary : colors.onSurfaceVariant,
+        }}>{p.winRate}% Win Rate</span>
+      )}
+      {!isMobile && <span style={{ textAlign: 'right', color: colors.primary, fontWeight: 700 }}>{p.sol} SOL</span>}
     </div>
   );
 
   return (
-    <div style={{ background: colors.background, minHeight: '100vh', display: 'flex', color: colors.onSurface }}>
-      <aside style={{ width: 260, borderRight: `1px solid ${colors.outlineVariant}`, display: 'flex', flexDirection: 'column', padding: '24px 16px', position: 'sticky', top: 0, height: '100vh' }}>
+    <div style={{ background: colors.background, minHeight: '100vh', display: 'flex', flexDirection: isMobile ? 'column' as const : 'row' as const, color: colors.onSurface }}>
+      <aside style={{ width: isMobile ? '100%' : 260, borderRight: isMobile ? 'none' : `1px solid ${colors.outlineVariant}`, borderBottom: isMobile ? `1px solid ${colors.outlineVariant}` : 'none', display: 'flex', flexDirection: 'column', padding: '20px 16px', position: isMobile ? 'static' as const : 'sticky' as const, top: 0, height: isMobile ? 'auto' : '100vh' }}>
         <span onClick={() => setPage('home')} style={{ fontSize: 20, fontWeight: 800, color: colors.primary, marginBottom: 24, cursor: 'pointer' }}>SolaBattle</span>
 
         <div style={{ background: colors.surfaceContainerLow, borderRadius: 12, padding: 14, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, marginBottom: 20 }}>
@@ -684,7 +695,7 @@ function LeaderboardScreen({ setPage }: WalletProps) {
           <span style={{ background: 'rgba(78,222,163,0.15)', color: colors.secondary, fontWeight: 700, fontSize: 12, padding: '3px 10px', borderRadius: 20 }}>12.5 SOL</span>
         </div>
 
-        {navItems.map(item => (
+        {!isMobile && navItems.map(item => (
           <div key={item.label} onClick={() => item.page && setPage(item.page)} style={{
             display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px', borderRadius: 8, marginBottom: 4, cursor: 'pointer',
             background: item.active ? colors.primaryContainer : 'transparent',
@@ -695,17 +706,17 @@ function LeaderboardScreen({ setPage }: WalletProps) {
           </div>
         ))}
 
-        <div style={{ flex: 1 }} />
+        {!isMobile && <div style={{ flex: 1 }} />}
         <button onClick={() => setPage('battle')} style={{
           background: colors.primaryContainer, color: '#fff', border: 'none', borderRadius: 10,
-          padding: '13px', fontWeight: 700, fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+          padding: '13px', fontWeight: 700, fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: isMobile ? 16 : 0,
         }}><Icon name="search" size={18} />Find Opponent</button>
       </aside>
 
-      <main style={{ flex: 1, padding: '32px 40px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
+      <main style={{ flex: 1, padding: isMobile ? '20px' : '32px 40px', minWidth: 0 }}>
+        <div style={{ display: 'flex', flexDirection: isMobile ? 'column' as const : 'row' as const, gap: isMobile ? 10 : 0, justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
           <div>
-            <h1 style={{ fontSize: 32, fontWeight: 800, margin: 0 }}>Leaderboard</h1>
+            <h1 style={{ fontSize: isMobile ? 26 : 32, fontWeight: 800, margin: 0 }}>Leaderboard</h1>
             <p style={{ color: colors.onSurfaceVariant, fontSize: 14, margin: '6px 0 0' }}>SolaBattle Arena: Top 50 Warriors dominating the Solana grid.</p>
           </div>
           <span style={{
@@ -727,10 +738,12 @@ function LeaderboardScreen({ setPage }: WalletProps) {
 
         <div style={{ background: '#fff', border: `1px solid ${colors.outlineVariant}`, borderRadius: 12, overflow: 'hidden' }}>
           <div style={{
-            display: 'grid', gridTemplateColumns: '60px 1fr 80px 80px 140px 120px', padding: '12px 20px',
+            display: 'grid', gridTemplateColumns: columns, padding: '12px 20px',
             background: colors.surfaceContainerLow, color: colors.primary, fontWeight: 700, fontSize: 12, letterSpacing: '0.03em',
           }}>
-            <span>RANK</span><span>PLAYER</span><span>WINS</span><span>LOSSES</span><span>WIN%</span><span style={{ textAlign: 'right' }}>TOKENS</span>
+            <span>RANK</span><span>PLAYER</span><span>WINS</span><span>LOSSES</span>
+            {!isMobile && <span>WIN%</span>}
+            {!isMobile && <span style={{ textAlign: 'right' }}>TOKENS</span>}
           </div>
 
           {topThree.map(p => <Row key={p.rank} p={p} />)}
@@ -744,7 +757,7 @@ function LeaderboardScreen({ setPage }: WalletProps) {
           {rest.map(p => <Row key={p.rank} p={p} />)}
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 16, color: colors.onSurfaceVariant, fontSize: 13 }}>
+        <div style={{ display: 'flex', flexDirection: isMobile ? 'column' as const : 'row' as const, gap: isMobile ? 8 : 0, justifyContent: 'space-between', marginTop: 16, color: colors.onSurfaceVariant, fontSize: 13 }}>
           <span>Showing 1-10 of 50 Top Warriors</span>
           <div style={{ display: 'flex', gap: 8 }}>
             <button style={{ border: `1px solid ${colors.outlineVariant}`, background: '#fff', borderRadius: 8, padding: '6px 14px', fontSize: 13 }}>Previous</button>
@@ -752,7 +765,7 @@ function LeaderboardScreen({ setPage }: WalletProps) {
           </div>
         </div>
 
-        <footer style={{ marginTop: 40, paddingTop: 16, borderTop: `1px solid ${colors.outlineVariant}`, display: 'flex', justifyContent: 'space-between', color: colors.onSurfaceVariant, fontSize: 12 }}>
+        <footer style={{ marginTop: 40, paddingTop: 16, borderTop: `1px solid ${colors.outlineVariant}`, display: 'flex', flexDirection: isMobile ? 'column' as const : 'row' as const, gap: isMobile ? 8 : 0, justifyContent: 'space-between', color: colors.onSurfaceVariant, fontSize: 12 }}>
           <span>© 2026 SolaBattle</span>
           <span style={{ color: colors.secondary }}>● Network: Solana Devnet</span>
         </footer>
@@ -760,6 +773,7 @@ function LeaderboardScreen({ setPage }: WalletProps) {
     </div>
   );
 }
+
 // ============ HOW TO PLAY SCREEN ============
 function HowToPlayScreen({ setPage }: WalletProps) {
   const isMobile = useIsMobile();
@@ -784,8 +798,8 @@ function HowToPlayScreen({ setPage }: WalletProps) {
         }}>Enter Arena</button>
       </header>
 
-      <main style={{ maxWidth: 720, margin: '0 auto', padding: '56px 24px' }}>
-        <h1 style={{ fontSize: 36, fontWeight: 800, marginBottom: 8, textAlign: 'center' }}>How to Play</h1>
+      <main style={{ maxWidth: 720, margin: '0 auto', padding: isMobile ? '32px 20px' : '56px 24px' }}>
+        <h1 style={{ fontSize: isMobile ? 26 : 36, fontWeight: 800, marginBottom: 8, textAlign: 'center' }}>How to Play</h1>
         <p style={{ color: colors.onSurfaceVariant, textAlign: 'center', marginBottom: 40, fontSize: 15 }}>
           New to SolaBattle or new to Solana? Here's everything you need to know.
         </p>
@@ -794,7 +808,7 @@ function HowToPlayScreen({ setPage }: WalletProps) {
           {steps.map(s => (
             <div key={s.title} style={{
               display: 'flex', gap: 16, alignItems: 'flex-start',
-              background: '#fff', border: `1px solid ${colors.outlineVariant}`, borderRadius: 12, padding: 20,
+              background: '#fff', border: `1px solid ${colors.outlineVariant}`, borderRadius: 12, padding: isMobile ? 16 : 20,
             }}>
               <div style={{
                 width: 44, height: 44, borderRadius: 10, background: colors.surfaceContainer,
@@ -809,7 +823,7 @@ function HowToPlayScreen({ setPage }: WalletProps) {
         </div>
 
         <div style={{
-          marginTop: 32, background: colors.surfaceContainerLow, borderRadius: 12, padding: 20,
+          marginTop: 32, background: colors.surfaceContainerLow, borderRadius: 12, padding: isMobile ? 16 : 20,
           border: `1px solid ${colors.outlineVariant}`,
         }}>
           <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -829,7 +843,7 @@ function HowToPlayScreen({ setPage }: WalletProps) {
         </div>
       </main>
 
-      <footer style={{ padding: '20px 48px', display: 'flex', justifyContent: 'space-between', borderTop: `1px solid ${colors.outlineVariant}`, fontSize: 13, marginTop: 40 }}>
+      <footer style={{ padding: isMobile ? '20px' : '20px 48px', display: 'flex', flexDirection: isMobile ? 'column' as const : 'row' as const, gap: isMobile ? 8 : 0, justifyContent: 'space-between', borderTop: `1px solid ${colors.outlineVariant}`, fontSize: 13, marginTop: 40 }}>
         <span style={{ color: colors.onSurfaceVariant }}>© 2026 SolaBattle</span>
         <span style={{ color: colors.secondary, fontWeight: 600 }}>● Solana Devnet: Operational</span>
       </footer>
@@ -876,6 +890,7 @@ export default function Pages() {
       setAirdropping(false);
     }
   };
+
   const recordBattleResult = async (resultText: string) => {
     if (!publicKey) return null;
     try {
@@ -891,7 +906,7 @@ export default function Pages() {
     }
   };
 
- const walletProps: WalletProps = {
+  const walletProps: WalletProps = {
     setPage: setCurrentPage,
     connected,
     address,
@@ -907,7 +922,8 @@ export default function Pages() {
   if (currentPage === 'dashboard') return <DashboardScreen {...walletProps} />;
   if (currentPage === 'battle') return <BattleScreen {...walletProps} />;
   if (currentPage === 'leaderboard') return <LeaderboardScreen {...walletProps} />;
-if (currentPage === 'howtoplay') return <HowToPlayScreen {...walletProps} />;
+  if (currentPage === 'howtoplay') return <HowToPlayScreen {...walletProps} />;
+
   return (
     <div style={{ background: colors.background, minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: colors.onSurfaceVariant }}>
       <div style={{ textAlign: 'center' }}>
@@ -915,4 +931,5 @@ if (currentPage === 'howtoplay') return <HowToPlayScreen {...walletProps} />;
         <button onClick={() => setCurrentPage('home')} style={{ marginTop: 12, background: colors.primaryContainer, color: '#fff', border: 'none', borderRadius: 8, padding: '10px 20px' }}>Back Home</button>
       </div>
     </div>
-  );}
+  );
+}
