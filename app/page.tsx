@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { LAMPORTS_PER_SOL, Transaction } from '@solana/web3.js';
@@ -373,13 +373,16 @@ function BattleScreen({ setPage, onRecordResult }: WalletProps) {
   const [lastPlayerMove, setLastPlayerMove] = useState<string | null>(null);
   const [popup, setPopup] = useState<{ side: 'player' | 'opp'; value: number } | null>(null);
   const [txSignature, setTxSignature] = useState<string | null>(null);
+  const logEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (over) return;
     const t = setInterval(() => setTimer(p => (p > 0 ? p - 1 : 0)), 1000);
     return () => clearInterval(t);
   }, [over]);
-
+  useEffect(() => {
+    logEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [log]);
   const moveNames: Record<string, string> = {
     attack: 'KINETIC STRIKE',
     defend: 'DEFENSIVE STANCE',
@@ -571,9 +574,10 @@ function BattleScreen({ setPage, onRecordResult }: WalletProps) {
 
         <div style={{ background: '#fff', border: `1px solid ${colors.outlineVariant}`, borderRadius: 12, padding: 16, height: isMobile ? 220 : 320, overflowY: 'auto' as const, order: isMobile ? 3 : 0 }}>
           <div style={{ fontWeight: 700, fontSize: 12, letterSpacing: '0.05em', color: colors.onSurfaceVariant, marginBottom: 10 }}>BATTLE PROTOCOL LOG</div>
-          {log.map((l, i) => (
+         {log.map((l, i) => (
             <div key={i} style={{ fontFamily: 'monospace', fontSize: 12, padding: '6px 0', color: l.includes('PLAYER') ? colors.primary : l.includes('OPPONENT') ? colors.tertiary : colors.onSurfaceVariant }}>{l}</div>
           ))}
+          <div ref={logEndRef} />
         </div>
 
         <div style={{ textAlign: 'center' }}>
