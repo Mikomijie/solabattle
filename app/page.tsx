@@ -505,10 +505,12 @@ const moveNames: Record<string, string> = {
                   rel="noopener noreferrer"
                   style={{ color: colors.secondary, fontSize: 12, textDecoration: 'underline' }}
                   >
-                    View on-chain proof →
-                   </a>
-  }}
-                  </div>
+                   View on-chain proof →
+                  </a>
+                )}
+              </>
+            )}
+          </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             <button onClick={() => { setPlayerHP(100); setOppHP(100); setRound(1); setTimer(60); setOver(false); setWinner(''); setLog(['>> New battle initialized']); }} style={{
