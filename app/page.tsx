@@ -5,7 +5,16 @@ import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { LAMPORTS_PER_SOL, Transaction } from '@solana/web3.js';
 import { createMemoInstruction } from '@solana/spl-memo';
-
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+  return isMobile;
+}
 // ============ DESIGN TOKENS ============
 const colors = {
   primary: '#3525cd',
@@ -48,14 +57,15 @@ type WalletProps = {
 
 // ============ HOME SCREEN ============
 function HomeScreen({ setPage, connected, address, balance, onConnectClick }: WalletProps) {
+  const isMobile = useIsMobile();
   return (
     <div style={{ background: colors.background, minHeight: '100vh', color: colors.onSurface }}>
       <header style={{
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        padding: '20px 48px', borderBottom: `1px solid ${colors.outlineVariant}`,
+        padding: isMobile ? '16px 20px' : '20px 48px', borderBottom: `1px solid ${colors.outlineVariant}`, flexWrap: 'wrap', gap: 12,
       }}>
         <span style={{ fontSize: 22, fontWeight: 800, color: colors.primary }}>SolaBattle</span>
-        <nav style={{ display: 'flex', gap: 32 }}>
+        <nav style={{ display: isMobile ? 'none' : 'flex', gap: 32 }}>
           <span style={{ color: colors.onSurface, fontWeight: 500, cursor: 'pointer' }}>Arena</span>
           <span onClick={() => setPage('leaderboard')} style={{ color: colors.onSurfaceVariant, cursor: 'pointer' }}>Leaderboard</span>
           <span onClick={() => setPage('howtoplay')} style={{ color: colors.onSurfaceVariant, cursor: 'pointer' }}>How to Play</span>
@@ -78,11 +88,11 @@ function HomeScreen({ setPage, connected, address, balance, onConnectClick }: Wa
       </header>
 
       <section style={{
-        background: colors.surfaceContainerLow, padding: '64px 48px',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 48, flexWrap: 'wrap',
+        background: colors.surfaceContainerLow, padding: isMobile ? '32px 20px' : '64px 48px',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 32, flexWrap: 'wrap',
       }}>
         <div style={{ maxWidth: 480 }}>
-          <h1 style={{ fontSize: 48, fontWeight: 800, lineHeight: 1.1, letterSpacing: '-0.02em', margin: '0 0 16px' }}>
+          <h1 style={{ fontSize: isMobile ? 30 : 48, fontWeight: 800, lineHeight: 1.15, letterSpacing: '-0.02em', margin: '0 0 16px' }}>
             1v1 Blockchain Combat. Prove Your Worth.
           </h1>
           <p style={{ color: colors.onSurfaceVariant, fontSize: 16, marginBottom: 28 }}>
@@ -121,7 +131,7 @@ function HomeScreen({ setPage, connected, address, balance, onConnectClick }: Wa
         </div>
       </section>
 
-      <section style={{ padding: '56px 48px', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 32 }}>
+      <section style={{ padding: isMobile ? '32px 20px' : '56px 48px', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: 24 }}>
         {[
           { icon: 'swords', title: 'Battle the AI', desc: 'Face off against a scripted combat AI in fast-paced turn-based battles, right in your browser.' },
           { icon: 'payments', title: 'Earn $SOLA Tokens', desc: 'Stake your reputation and tokens in high-stakes wagers. Winners take all, settled instantly on the Solana blockchain.' },
@@ -137,7 +147,7 @@ function HomeScreen({ setPage, connected, address, balance, onConnectClick }: Wa
         ))}
       </section>
 
-      <section style={{ background: colors.surfaceContainerLow, padding: '48px' }}>
+      <section style={{ background: colors.surfaceContainerLow, padding: isMobile ? '24px 20px' : '48px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
           <h2 style={{ fontSize: 22, fontWeight: 700, margin: 0 }}>Active Arena Log</h2>
           <span style={{ color: colors.primary, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>View all matches</span>
@@ -146,7 +156,7 @@ function HomeScreen({ setPage, connected, address, balance, onConnectClick }: Wa
           { p1: 'CryptoKnight.sol', p2: 'ChainBreaker_99', pool: '5.00', live: true },
           { p1: 'SolaVixen', p2: 'Titan_One', pool: '12.50', live: false },
         ].map((m, i) => (
-          <div key={i} style={{ background: '#fff', border: `1px solid ${colors.outlineVariant}`, borderRadius: 10, padding: '14px 20px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 16 }}>
+          <div key={i} style={{ background: '#fff', border: `1px solid ${colors.outlineVariant}`, borderRadius: 10, padding: '14px 20px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
             <span style={{ fontWeight: 600, fontSize: 14 }}>{m.p1}</span>
             <span style={{ color: colors.primary, fontSize: 11, fontWeight: 700, background: colors.surfaceContainer, padding: '2px 8px', borderRadius: 6 }}>VS</span>
             <span style={{ fontWeight: 600, fontSize: 14 }}>{m.p2}</span>
@@ -161,7 +171,7 @@ function HomeScreen({ setPage, connected, address, balance, onConnectClick }: Wa
         ))}
       </section>
 
-      <footer style={{ padding: '20px 48px', display: 'flex', justifyContent: 'space-between', borderTop: `1px solid ${colors.outlineVariant}`, fontSize: 13 }}>
+      <footer style={{ padding: isMobile ? '20px' : '20px 48px', display: 'flex', flexDirection: isMobile ? 'column' as const : 'row' as const, gap: isMobile ? 16 : 0, justifyContent: 'space-between', borderTop: `1px solid ${colors.outlineVariant}`, fontSize: 13 }}>
         <div>
           <div style={{ fontWeight: 700, color: colors.primary }}>SolaBattle</div>
           <div style={{ color: colors.onSurfaceVariant }}>© 2026 SolaBattle. All combat is final.</div>
@@ -773,7 +783,7 @@ function HowToPlayScreen({ setPage }: WalletProps) {
     <div style={{ background: colors.background, minHeight: '100vh', color: colors.onSurface }}>
       <header style={{
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        padding: '20px 48px', borderBottom: `1px solid ${colors.outlineVariant}`,
+        padding: isMobile ? '16px 20px' : '20px 48px', borderBottom: `1px solid ${colors.outlineVariant}`, flexWrap: 'wrap', gap: 12,
       }}>
         <span onClick={() => setPage('home')} style={{ fontSize: 22, fontWeight: 800, color: colors.primary, cursor: 'pointer' }}>SolaBattle</span>
         <button onClick={() => setPage('dashboard')} style={{
