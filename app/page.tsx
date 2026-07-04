@@ -3,7 +3,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
-import { LAMPORTS_PER_SOL } from '@solana/web3.js';
+import { LAMPORTS_PER_SOL, Transaction } from '@solana/web3.js';
+import { createMemoInstruction } from '@solana/spl-memo';
 
 // ============ DESIGN TOKENS ============
 const colors = {
@@ -42,6 +43,7 @@ type WalletProps = {
   onDisconnect: () => void;
   onAirdrop: () => void;
   airdropping: boolean;
+  onRecordResult: (text: string) => Promise<string | null>;
 };
 
 // ============ HOME SCREEN ============
@@ -345,7 +347,7 @@ function DashboardScreen({ setPage, connected, address, balance, onConnectClick,
 }
 
 // ============ BATTLE SCREEN ============
-function BattleScreen({ setPage }: WalletProps) {
+function BattleScreen({ setPage, onRecordResult }: WalletProps) {
   const [playerHP, setPlayerHP] = useState(100);
   const [oppHP, setOppHP] = useState(100);
   const [log, setLog] = useState<string[]>(['>> Initializing Neural Combat Link... [SUCCESS]', '>> Validating Block State... [OK]']);
@@ -356,7 +358,7 @@ function BattleScreen({ setPage }: WalletProps) {
   const [resolving, setResolving] = useState(false);
   const [lastPlayerMove, setLastPlayerMove] = useState<string | null>(null);
   const [popup, setPopup] = useState<{ side: 'player' | 'opp'; value: number } | null>(null);
-
+  const [txSignature, setTxSignature] = useState<string | null>(null);
   useEffect(() => {
     if (over) return;
     const t = setInterval(() => setTimer(p => (p > 0 ? p - 1 : 0)), 1000);
@@ -430,12 +432,30 @@ const moveNames: Record<string, string> = {
 
         setTimeout(() => setPopup(null), 900);
 
-        if (newOpp === 0) { setOver(true); setWinner('You'); setLog(prev => [...prev, '>> VICTORY: Opponent eliminated']); setResolving(false); return; }
-        if (newP === 0) { setOver(true); setWinner('Opponent'); setLog(prev => [...prev, '>> DEFEAT: You have fallen']); setResolving(false); return; }
+        if (newOpp === 0) {
+          setOver(true); setWinner('You');
+          setLog(prev => [...prev, '>> VICTORY: Opponent eliminated', '>> Recording result on Solana Devnet...']);
+          onRecordResult(`SolaBattle: Player defeated Combat AI in round ${round}`).then(sig => {
+            if (sig) { setTxSignature(sig); setLog(prev => [...prev, `>> Confirmed on-chain: ${sig.slice(0, 20)}...`]); }
+          });
+          setResolving(false); return;
+        }
+        if (newP === 0) {
+          setOver(true); setWinner('Opponent');
+          setLog(prev => [...prev, '>> DEFEAT: You have fallen']);
+          setResolving(false); return;
+        }
 
         if (round >= 5) {
+          const finalWinner = newP >= newOpp ? 'You' : 'Opponent';
           setOver(true);
-          setWinner(newP >= newOpp ? 'You' : 'Opponent');
+          setWinner(finalWinner);
+          if (finalWinner === 'You') {
+            setLog(prev => [...prev, '>> Recording result on Solana Devnet...']);
+            onRecordResult(`SolaBattle: Player won by HP after 5 rounds`).then(sig => {
+              if (sig) { setTxSignature(sig); setLog(prev => [...prev, `>> Confirmed on-chain: ${sig.slice(0, 20)}...`]); }
+            });
+          }
           setResolving(false);
           return;
         }
@@ -467,7 +487,17 @@ const moveNames: Record<string, string> = {
             {won && (
               <>
                 <div style={{ fontWeight: 700, color: colors.secondary, marginBottom: 2 }}>+10 Tokens Earned!</div>
-                <div style={{ fontWeight: 600, color: colors.primary, fontSize: 13 }}>+20 XP gained</div>
+                <div style={{ fontWeight: 600, color: colors.primary, fontSize: 13, marginBottom: 8 }}>+20 XP gained</div>
+                {txSignature && (
+                  
+                    href={`https://explorer.solana.com/tx/${txSignature}?cluster=devnet`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: colors.secondary, fontSize: 12, textDecoration: 'underline' }}
+                  >
+                    View on-chain proof →
+                  </a>
+                )}
               </>
             )}
           </div>
@@ -799,7 +829,7 @@ function HowToPlayScreen({ setPage }: WalletProps) {
 // ============ MAIN APP ============
 export default function Pages() {
   const [currentPage, setCurrentPage] = useState<Page>('home');
-  const { publicKey, connected, disconnect } = useWallet();
+  const { publicKey, connected, disconnect, sendTransaction } = useWallet();
   const { connection } = useConnection();
   const { setVisible } = useWalletModal();
   const [balance, setBalance] = useState<number | null>(null);
@@ -835,8 +865,22 @@ export default function Pages() {
       setAirdropping(false);
     }
   };
+  const recordBattleResult = async (resultText: string) => {
+    if (!publicKey) return null;
+    try {
+      const transaction = new Transaction().add(
+        createMemoInstruction(resultText, [publicKey])
+      );
+      const signature = await sendTransaction(transaction, connection);
+      await connection.confirmTransaction(signature, 'confirmed');
+      return signature;
+    } catch (e) {
+      console.error('Failed to record battle result on-chain:', e);
+      return null;
+    }
+  };
 
-  const walletProps: WalletProps = {
+ const walletProps: WalletProps = {
     setPage: setCurrentPage,
     connected,
     address,
@@ -845,6 +889,7 @@ export default function Pages() {
     onDisconnect: disconnect,
     onAirdrop: handleAirdrop,
     airdropping,
+    onRecordResult: recordBattleResult,
   };
 
   if (currentPage === 'home') return <HomeScreen {...walletProps} />;

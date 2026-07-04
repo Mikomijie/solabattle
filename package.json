@@ -20,6 +20,7 @@
   "dependencies": {
     "@solana/codecs": "^6.10.0",
     "@solana/codecs-data-structures": "^6.10.0",
+    "@solana/spl-memo": "^0.2.5",
     "@solana/wallet-adapter-react": "^0.15.35",
     "@solana/wallet-adapter-react-ui": "^0.9.35",
     "@solana/wallet-adapter-wallets": "^0.19.30",
