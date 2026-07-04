@@ -500,25 +500,15 @@ const moveNames: Record<string, string> = {
                 <div style={{ fontWeight: 600, color: colors.primary, fontSize: 13, marginBottom: 8 }}>+20 XP gained</div>
                 {txSignature && (
                   <a
-                  href={`https://explorer.solana.com/tx/${txSignature}?cluster=devnet`}
+                  href = {`https://explorer.solana.com/tx/${txSignature}?cluster=devnet`}
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{ color: colors.secondary, fontSize: 12, textDecoration: 'underline' }}
                   >
                     View on-chain proof →
-                    </a>
-                    )}
-                    href={`https://explorer.solana.com/tx/${txSignature}?cluster=devnet`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ color: colors.secondary, fontSize: 12, textDecoration: 'underline' }}
-                  >
-                    View on-chain proof →
-                  </a>
-                )}
-              </>
-            )}
-          </div>
+                   </a>
+  }}
+                  </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             <button onClick={() => { setPlayerHP(100); setOppHP(100); setRound(1); setTimer(60); setOver(false); setWinner(''); setLog(['>> New battle initialized']); }} style={{
@@ -770,6 +760,7 @@ function LeaderboardScreen({ setPage }: WalletProps) {
 }
 // ============ HOW TO PLAY SCREEN ============
 function HowToPlayScreen({ setPage }: WalletProps) {
+  const isMobile = useIsMobile();
   const steps = [
     { icon: 'account_balance_wallet', title: '1. Connect Your Wallet', desc: 'Link your Phantom wallet to SolaBattle. This is your identity in the arena — no sign-up forms, just your wallet.' },
     { icon: 'search', title: '2. Find an Opponent', desc: 'Hit "Find Opponent" from your dashboard to get matched into a 1v1 battle.' },
