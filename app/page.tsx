@@ -189,6 +189,7 @@ function HomeScreen({ setPage, connected, address, balance, onConnectClick }: Wa
 
 // ============ DASHBOARD SCREEN ============
 function DashboardScreen({ setPage, connected, address, balance, onConnectClick, onDisconnect, onAirdrop, airdropping }: WalletProps) {
+  const isMobile = useIsMobile();
   const navItems = [
     { icon: 'swords', label: 'Arena', active: true, page: 'dashboard' as Page },
     { icon: 'leaderboard', label: 'Leaderboard', active: false, page: 'leaderboard' as Page },
@@ -203,8 +204,8 @@ function DashboardScreen({ setPage, connected, address, balance, onConnectClick,
   ];
 
   return (
-    <div style={{ background: colors.background, minHeight: '100vh', display: 'flex', color: colors.onSurface }}>
-      <aside style={{ width: 260, borderRight: `1px solid ${colors.outlineVariant}`, display: 'flex', flexDirection: 'column', padding: '24px 16px', position: 'sticky', top: 0, height: '100vh' }}>
+  <div style={{ background: colors.background, minHeight: '100vh', display: 'flex', flexDirection: isMobile ? 'column' : 'row', color: colors.onSurface }}>
+      <aside style={{ width: isMobile ? '100%' : 260, borderRight: isMobile ? 'none' : `1px solid ${colors.outlineVariant}`, borderBottom: isMobile ? `1px solid ${colors.outlineVariant}` : 'none', display: 'flex', flexDirection: 'column', padding: '20px 16px', position: isMobile ? 'static' : 'sticky', top: 0, height: isMobile ? 'auto' : '100vh' }}>
         <span onClick={() => setPage('home')} style={{ fontSize: 20, fontWeight: 800, color: colors.primary, marginBottom: 24, cursor: 'pointer' }}>SolaBattle</span>
 
         <div style={{ background: colors.surfaceContainerLow, borderRadius: 12, padding: 14, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, marginBottom: 20 }}>
@@ -237,8 +238,7 @@ function DashboardScreen({ setPage, connected, address, balance, onConnectClick,
             }}>Connect Wallet</button>
           )}
         </div>
-
-        {navItems.map(item => (
+{!isMobile && navItems.map(item => (
           <div key={item.label} onClick={() => item.page && setPage(item.page)} style={{
             display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px', borderRadius: 8, marginBottom: 4, cursor: 'pointer',
             background: item.active ? colors.primaryContainer : 'transparent',
@@ -249,7 +249,7 @@ function DashboardScreen({ setPage, connected, address, balance, onConnectClick,
           </div>
         ))}
 
-        <div style={{ flex: 1 }} />
+        {!isMobile && <div style={{ flex: 1 }} />}
         <button onClick={() => setPage('battle')} style={{
           background: colors.primaryContainer, color: '#fff', border: 'none', borderRadius: 10,
           padding: '13px', fontWeight: 700, fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
@@ -915,5 +915,4 @@ if (currentPage === 'howtoplay') return <HowToPlayScreen {...walletProps} />;
         <button onClick={() => setCurrentPage('home')} style={{ marginTop: 12, background: colors.primaryContainer, color: '#fff', border: 'none', borderRadius: 8, padding: '10px 20px' }}>Back Home</button>
       </div>
     </div>
-  );
-}
+  );}
