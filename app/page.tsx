@@ -67,7 +67,7 @@ function HomeScreen({ setPage, connected, address, balance, onConnectClick }: Wa
         padding: isMobile ? '16px 20px' : '20px 48px', borderBottom: `1px solid ${colors.outlineVariant}`, flexWrap: 'wrap', gap: 12,
       }}>
         <span style={{ fontSize: 22, fontWeight: 800, color: colors.primary }}>SolaBattle</span>
-        <nav style={{ display: isMobile ? 'none' : 'flex', gap: 32 }}>
+        <nav style={{ display: 'flex', gap: isMobile ? 16 : 32, fontSize: isMobile ? 13 : 16, flexWrap: 'wrap' as const }}>
           <span style={{ color: colors.onSurface, fontWeight: 500, cursor: 'pointer' }}>Arena</span>
           <span onClick={() => setPage('leaderboard')} style={{ color: colors.onSurfaceVariant, cursor: 'pointer' }}>Leaderboard</span>
           <span onClick={() => setPage('howtoplay')} style={{ color: colors.onSurfaceVariant, cursor: 'pointer' }}>How to Play</span>
