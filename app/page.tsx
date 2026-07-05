@@ -6,16 +6,7 @@ import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { LAMPORTS_PER_SOL, Transaction } from '@solana/web3.js';
 import { createMemoInstruction } from '@solana/spl-memo';
 
-function useIsMobile() {
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768);
-    check();
-    window.addEventListener('resize', check);
-    return () => window.removeEventListener('resize', check);
-  }, []);
-  return isMobile;
-}
+
 
 // ============ DESIGN TOKENS ============
 const colors = {
@@ -67,7 +58,7 @@ function HomeScreen({ setPage, connected, address, balance, onConnectClick }: Wa
         padding: isMobile ? '16px 20px' : '20px 48px', borderBottom: `1px solid ${colors.outlineVariant}`, flexWrap: 'wrap', gap: 12,
       }}>
         <span style={{ fontSize: 22, fontWeight: 800, color: colors.primary }}>SolaBattle</span>
-        <nav style={{ display: 'flex', gap: isMobile ? 16 : 32, fontSize: isMobile ? 13 : 16, flexWrap: 'wrap' as const }}>
+        <nav style={{ display: isMobile ? 'none' : 'flex', gap: 32 }}>
           <span style={{ color: colors.onSurface, fontWeight: 500, cursor: 'pointer' }}>Arena</span>
           <span onClick={() => setPage('leaderboard')} style={{ color: colors.onSurfaceVariant, cursor: 'pointer' }}>Leaderboard</span>
           <span onClick={() => setPage('howtoplay')} style={{ color: colors.onSurfaceVariant, cursor: 'pointer' }}>How to Play</span>
