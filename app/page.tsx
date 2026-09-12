@@ -29,7 +29,7 @@ type FighterState = 'idle' | 'attacking' | 'hit' | 'victory' | 'defeat';
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768);
+    const check = () => setIsMobile(window.innerWidth < 900);
     check();
     window.addEventListener('resize', check);
     return () => window.removeEventListener('resize', check);
@@ -678,8 +678,10 @@ function BattleScreen({ setPage }: { setPage: (p: Page) => void }) {
   if (mobilePortrait) {
     return (
       <div style={{
-        background: screenFlash ? colors.surfaceContainerHigh : colors.background,
-        height: '100dvh', color: colors.onSurface, fontFamily: 'Inter, sans-serif',
+             background: screenFlash ? colors.surfaceContainerHigh : colors.background,
+        height: '100vh',
+        minHeight: '-webkit-fill-available',
+        color: colors.onSurface, fontFamily: 'Inter, sans-serif',
         display: 'flex', flexDirection: 'column', overflow: 'hidden',
         transition: 'background 0.15s',
       }}>
@@ -709,6 +711,7 @@ function BattleScreen({ setPage }: { setPage: (p: Page) => void }) {
             justifyContent: 'space-around', padding: '20px 16px',
             background: `linear-gradient(180deg, ${colors.surfaceContainerLow} 0%, ${colors.background} 100%)`,
             userSelect: 'none', position: 'relative',
+            overflow: 'hidden',
           }}
         >
           <WarriorSVG isPlayer state={playerState} size={1.1} />
@@ -748,10 +751,11 @@ function BattleScreen({ setPage }: { setPage: (p: Page) => void }) {
           {log[log.length - 1]}
         </div>
 
-        {/* Buttons */}
+          {/* Buttons */}
         <div style={{
           padding: '10px 16px 20px', background: colors.background,
           borderTop: `1px solid ${colors.outlineVariant}`, flexShrink: 0,
+          overflow: 'hidden',
         }}>
           <MoveButtons />
         </div>
