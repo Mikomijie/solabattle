@@ -1,32 +1,16 @@
-'use client';
-import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
-import {
-  ConnectionProvider,
-  WalletProvider,
-} from '@solana/wallet-adapter-react';
-import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
-import {
-  PhantomWalletAdapter,
-  SolflareWalletAdapter,
-} from '@solana/wallet-adapter-wallets';
-import { clusterApiUrl } from '@solana/web3.js';
-import { useMemo } from 'react';
-import '@solana/wallet-adapter-react-ui/styles.css';
+import type { Metadata } from 'next';
 import './globals.css';
+
+export const metadata: Metadata = {
+  title: 'BotBattle',
+  description: '1v1 AI Battle Arena on BOT Chain',
+};
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const network = WalletAdapterNetwork.Devnet;
-  const endpoint = useMemo(() => clusterApiUrl(network), [network]);
-
-  const wallets = useMemo(
-    () => [new PhantomWalletAdapter(), new SolflareWalletAdapter()],
-    []
-  );
-
   return (
     <html lang="en">
       <head>
@@ -36,16 +20,12 @@ export default function RootLayout({
           rel="stylesheet"
         />
         <link
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght@20..48,100..700&display=swap"
+          href="https://fonts.googleapis.com/icon?family=Material+Icons"
           rel="stylesheet"
         />
       </head>
-      <body>
-        <ConnectionProvider endpoint={endpoint}>
-          <WalletProvider wallets={wallets} autoConnect>
-            <WalletModalProvider>{children}</WalletModalProvider>
-          </WalletProvider>
-        </ConnectionProvider>
+      <body style={{ margin: 0, fontFamily: 'Inter, sans-serif' }}>
+        {children}
       </body>
     </html>
   );
