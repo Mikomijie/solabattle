@@ -1,56 +1,88 @@
-# SolaBattle - 1v1 Solana Battle Arena
+markdown
+# ⚔️ BotBattle
 
-A 1v1 turn-based combat game with real Solana wallet integration. Connect your Phantom wallet, check your live devnet balance, and battle an AI opponent using a rock-paper-scissors-style Attack/Defend/Special combat system.
+A 1v1 turn-based battle game deployed on BOT Chain. Fight the Combat AI across 10 rounds, and have your victory recorded permanently on-chain.
 
-**Live demo:** https://solabattle.vercel.app
+## What It Does
 
-## Features
-- Real Phantom wallet connection (Solana Devnet)
-- Live on-chain SOL balance display
-- Devnet SOL airdrop button (real devnet transaction)
-- 1v1 turn-based combat vs an AI opponent, using a rock-paper-scissors move system (Attack beats Special, Defend beats Attack, Special beats Defend)
-- Animated move reveal with damage pop-ups
-- Dashboard with player stats and match history
-- Leaderboard screen
-- How to Play guide
+BotBattle is a decentralized fighting game where players battle an AI opponent in 10-round combat. Every win is recorded on the BOT Chain blockchain as permanent proof of victory.
+
+- Connect your MetaMask wallet
+- Battle the Combat AI across 10 rounds with 200 HP each
+- Choose Attack, Defend, or Special each round
+- Win by reducing the bot to 0 HP or having more HP after 10 rounds
+- Your victory is recorded on-chain automatically
+
+## How to Play
+
+**Desktop**
+- Click Attack, Defend, or Special buttons
+- Or use keyboard shortcuts: `A` = Attack · `D` = Defend · `S` = Special
+
+**Mobile**
+- Swipe right to Attack
+- Swipe left to Defend
+- Swipe up for Special
+- Or tap the buttons at the bottom
+
+## Combat System
+
+| Move | Beats | Damage |
+|------|-------|--------|
+| Attack | Special | 24 HP |
+| Defend | Attack | 15 HP |
+| Special | Defend | 36 HP |
+| Clash (same move) | — | 18–28 HP each |
+
+The AI reads your last move and counters 45% of the time. Adapt your strategy every round.
 
 ## Tech Stack
+
 - **Frontend:** Next.js + React + TypeScript
-- **Wallet Integration:** @solana/wallet-adapter-react, @solana/web3.js
-- **Blockchain:** Solana Devnet
-- **Styling:** Inline styles + Material Symbols icons
-- **UI Design Reference:** Google Stitch
-## Project Structure
+- **Blockchain:** BOT Chain (EVM compatible)
+- **Wallet:** MetaMask
+- **Smart Contract:** Solidity
+
+## Deployment
+
+**Testnet (BOT Chain Testnet — Chain ID 968)**
+
+Contract Address: [TO BE ADDED AFTER TESTNET DEPLOY]
+Explorer: https://scan.bohr.life
+
+
+**Mainnet (BOT Chain Mainnet — Chain ID 677)**
+
+Contract Address: [TO BE ADDED AFTER MAINNET DEPLOY]
+Explorer: https://scan.botchain.ai
+
+
+## Live App
+
+[botbattle.xyz](https://botbattle.xyz) — replace with your actual domain
+
+## Smart Contract
+
+The contract is located at `/BotBattle.sol` in this repository.
+
+It records:
+- Win/loss result
+- Number of rounds played
+- Remaining HP at end of match
+- Wallet address of the player
+- Block timestamp
+
+## Local Development
+
+```bash
+git clone https://github.com/Mikomijie/solabattle.git
+cd solabattle
+npm install
+npm run dev
 ```
-battle-game/
-├── app/
-│   ├── page.tsx          # All screens: Home, Dashboard, Battle, Leaderboard, How to Play
-│   ├── layout.tsx        # Wallet provider setup + font loading
-│   ├── globals.css
-│   └── solana-utils.ts
-├── programs/battle-game/ # Anchor smart contract (source code, not yet deployed to devnet)
-│   └── src/lib.rs
-└── package.json
- ```
-## How to Run Locally
-1. `npm install`
-2. `npm run dev`
-3. Open `localhost:3000`
-4. Install the [Phantom wallet](https://phantom.app) browser extension, set it to Devnet in Settings → Developer Settings
-5. Connect your wallet and play
 
-## Game Rules
-- Both fighters start at 100 HP, battle lasts up to 5 rounds
-- Each round, pick Attack, Defend, or Special — the AI picks a move too
-- Moves counter each other rock-paper-scissors style:
-  - Attack beats Special
-  - Defend beats Attack
-  - Special beats Defend
-  - Matching moves trade damage evenly
-- Winner is whoever has more HP when the battle ends (or whoever reduces the opponent to 0 first)
-
-## Solana Integration Notes
-This project connects to Solana Devnet for wallet authentication and balance/airdrop functionality via `@solana/web3.js`. A custom Anchor smart contract is included in `/programs` as source code but is not yet deployed to devnet — game logic currently runs client-side.
+Open [http://localhost:3000](http://localhost:3000)
 
 ## Built For
-Superhack University of Benin (Faculty of Computing), Solana hackathon by Superteam Nigeria.
+
+Build Week Hackathon Vol.2 — Girl Meets Tech x BOT Chain
