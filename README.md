@@ -1,88 +1,148 @@
-markdown
-# ⚔️ BotBattle
+# BotBattle
 
-A 1v1 turn-based battle game deployed on BOT Chain. Fight the Combat AI across 10 rounds, and have your victory recorded permanently on-chain.
+A 1v1 turn-based combat game on BOT Chain where players battle an undefeated AI opponent. Every victory is recorded permanently on-chain.
 
-## What It Does
+**Play Now:** [botbattle.xyz](https://botbattle.xyz) (domain coming soon)
 
-BotBattle is a decentralized fighting game where players battle an AI opponent in 10-round combat. Every win is recorded on the BOT Chain blockchain as permanent proof of victory.
+---
 
-- Connect your MetaMask wallet
-- Battle the Combat AI across 10 rounds with 200 HP each
-- Choose Attack, Defend, or Special each round
-- Win by reducing the bot to 0 HP or having more HP after 10 rounds
-- Your victory is recorded on-chain automatically
+## Game Overview
 
-## How to Play
+**The Arena:** In 2031, all disputes on BOT Chain are settled in the arena.
 
-**Desktop**
-- Click Attack, Defend, or Special buttons
-- Or use keyboard shortcuts: `A` = Attack · `D` = Defend · `S` = Special
+Enter a 10-round battle against **CIPHER-X**, an adaptive AI guardian. 200 HP each. Rock-paper-scissors mechanics. Highest HP after Round 10 wins — or get knocked to 0 HP first.
 
-**Mobile**
-- Swipe right to Attack
-- Swipe left to Defend
-- Swipe up for Special
-- Or tap the buttons at the bottom
+**The Catch:** CIPHER-X reads your moves. It counters your last move 45% of the time. Strategy wins.
 
-## Combat System
+---
 
-| Move | Beats | Damage |
-|------|-------|--------|
-| Attack | Special | 24 HP |
-| Defend | Attack | 15 HP |
-| Special | Defend | 36 HP |
-| Clash (same move) | — | 18–28 HP each |
+## Gameplay Mechanics
 
-The AI reads your last move and counters 45% of the time. Adapt your strategy every round.
+| Your Move | Beats | Damage |
+|-----------|-------|--------|
+| Attack ⚔️ | Special | 24 HP |
+| Special ⚡ | Defend | 36 HP |
+| Defend 🛡️ | Attack | 15 HP |
+| Clash | Same move | 18–28 HP each |
+
+**10 Rounds.** **200 HP each.** **Immutable on-chain results.**
+
+---
+
+## Features
+
+- ✅ **Sound Effects** — Web Audio API, no external files
+- ✅ **Animated Warriors** — SVG fighters with hit/attack/victory states
+- ✅ **Floating Damage Numbers** — Real-time combat feedback
+- ✅ **Round Intro Flash** — ROUND X / FIGHT overlay
+- ✅ **Haptic Feedback** — Android vibration on hit
+- ✅ **HP Bar Danger Pulse** — Below 25% HP pulse animation
+- ✅ **Screen Shake** — Special move impact feedback
+- ✅ **Arena Floor Grid** — Detailed battle environment
+- ✅ **CIPHER-X Taunts** — 10 rotating AI personality lines
+- ✅ **Win Streak Tracker** — localStorage persistence
+- ✅ **Fighter Stats Display** — W/L record on home screen
+- ✅ **World Lore** — "In 2031, all disputes on BOT Chain are settled in the arena"
+- ✅ **Responsive Design** — Desktop, tablet, mobile portrait & landscape
+- ✅ **Keyboard Controls** — A = Attack, D = Defend, S = Special
+- ✅ **Swipe Controls** — Mobile: right = Attack, left = Defend, up = Special
+
+---
 
 ## Tech Stack
 
-- **Frontend:** Next.js + React + TypeScript
-- **Blockchain:** BOT Chain (EVM compatible)
-- **Wallet:** MetaMask
-- **Smart Contract:** Solidity
+- **Frontend:** Next.js 14, React 18, TypeScript
+- **Styling:** Inline CSS (no external libraries)
+- **Audio:** Web Audio API
+- **Blockchain:** ethers.js v6, MetaMask integration
+- **Network:** BOT Chain (EVM-compatible)
+- **Deployment:** Vercel
+
+---
+
+## How to Play
+
+### Desktop
+- Click **Attack**, **Defend**, or **Special** buttons
+- OR press **A**, **D**, **S** keys
+
+### Mobile Portrait
+- Swipe **right** → Attack
+- Swipe **left** → Defend
+- Swipe **up** → Special
+- OR tap buttons below
+
+### Mobile Landscape
+- Swipe arena left panel OR use compact buttons on right
+
+---
+
+## Combat Strategy
+
+1. **CIPHER-X counters your last move 45% of the time** — never repeat the same move twice
+2. **After landing Special** → switch to Attack next round
+3. **If ahead on HP after Round 7** → play Defend more to protect your lead
+4. **Win condition:** Either knock CIPHER-X to 0 HP OR have more HP after Round 10
+
+---
+
+## Installation & Development
+
+```bash
+# Clone repo
+git clone https://github.com/Mikomijie/solabattle.git
+cd solabattle
+
+# Install dependencies
+npm install
+
+# Run dev server
+npm run dev
+
+# Open browser
+# http://localhost:3000
+```
+
+---
 
 ## Deployment
 
-**Testnet (BOT Chain Testnet — Chain ID 968)**
+### Testnet (BOT Chain Testnet - Chain ID 968)
+- **Contract Address:** `0xf4cd5F16A2558b1C6E3EC3beBC17aA6D00561250`
+- **Explorer:** https://scan.bohr.life
+- **RPC:** https://rpc.bohr.life
+- **Status:** ✅ Deployed & Tested
 
-Contract Address: [TO BE ADDED AFTER TESTNET DEPLOY]
-Explorer: https://scan.bohr.life
+### Mainnet (BOT Chain Mainnet - Chain ID 677)
+- **Contract Address:** (pending mainnet deployment)
+- **Explorer:** https://scan.botchain.ai
+- **RPC:** https://rpc.botchain.ai
+- **Status:** Awaiting BOT token allocation
 
-
-**Mainnet (BOT Chain Mainnet — Chain ID 677)**
-
-Contract Address: [TO BE ADDED AFTER MAINNET DEPLOY]
-Explorer: https://scan.botchain.ai
-
-
-## Live App
-
-[botbattle.xyz](https://botbattle.xyz) — replace with your actual domain
+---
 
 ## Smart Contract
 
-The contract is located at `/BotBattle.sol` in this repository.
+**BotBattle.sol** — Records match results on-chain
 
-It records:
-- Win/loss result
-- Number of rounds played
-- Remaining HP at end of match
-- Wallet address of the player
-- Block timestamp
+Functions:
+- `recordMatch(bool won, uint8 rounds, uint8 finalHP)` — Save battle result
+- `getStats(address player)` → returns (wins, losses, totalMatches)
+- `getMatchCount(address player)` → total battles played
+- `getMatch(address player, uint256 index)` → individual match details
 
-## Local Development
+---
 
-```bash
-git clone https://github.com/Mikomijie/solabattle.git
-cd solabattle
-npm install
-npm run dev
-```
+## Project Info
 
-Open [http://localhost:3000](http://localhost:3000)
+**Developer:** Michael Omijie (@Mikomijie)  
+**GitHub:** https://github.com/Mikomijie/solabattle  
+**Built for:** Girl Meets Tech Build Week Hackathon Vol.2  
+**Hackathon Dates:** Sept 18–25, 2026  
+**Submission Deadline:** Sept 25, 2026 11:59 PM GMT+7
 
-## Built For
+---
 
-Build Week Hackathon Vol.2 — Girl Meets Tech x BOT Chain
+## License
+
+MIT
