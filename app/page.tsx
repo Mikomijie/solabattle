@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { ethers } from 'ethers';
 
 const colors = {
   primary: '#3525cd',
@@ -20,6 +21,15 @@ const colors = {
   outline: '#777587',
   error: '#ba1a1a',
 };
+
+const CONTRACT_ADDRESS = '0xf4cd5F16A2558b1C6E3EC3beBC17aA6D00561250';
+const CONTRACT_ABI = [
+  'function recordMatch(bool won, uint8 rounds, uint8 finalHP) external',
+  'function getStats(address player) external view returns (uint256 wins, uint256 losses, uint256 totalMatches)',
+  'function getMatchCount(address player) external view returns (uint256)',
+  'function getMatch(address player, uint256 index) external view returns (bool won, uint8 rounds, uint8 finalHP, uint256 timestamp)',
+  'event MatchRecorded(address indexed player, bool won, uint8 rounds, uint8 finalHP, uint256 timestamp)',
+];
 
 type Page = 'home' | 'battle' | 'leaderboard' | 'history';
 type FighterState = 'idle' | 'attacking' | 'hit' | 'victory' | 'defeat';
@@ -70,6 +80,59 @@ function useStreak() {
     localStorage.setItem('bb_losses', String(l));
   }, [totalLosses]);
   return { streak, totalWins, totalLosses, recordWin, recordLoss };
+}
+
+function useWallet() {
+  const [account, setAccount] = useState<string | null>(null);
+  const [connected, setConnected] = useState(false);
+  const [provider, setProvider] = useState<ethers.BrowserProvider | null>(null);
+
+  useEffect(() => {
+    const checkConnection = async () => {
+      if (typeof window !== 'undefined' && window.ethereum) {
+        try {
+          const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+          if (accounts.length > 0) {
+            setAccount(accounts[0]);
+            setConnected(true);
+            setProvider(new ethers.BrowserProvider(window.ethereum));
+          }
+        } catch (err) {
+          console.error('Error checking connection:', err);
+        }
+      }
+    };
+    checkConnection();
+  }, []);
+
+  const connectWallet = useCallback(async () => {
+    if (typeof window !== 'undefined' && window.ethereum) {
+      try {
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        setAccount(accounts[0]);
+        setConnected(true);
+        setProvider(new ethers.BrowserProvider(window.ethereum));
+      } catch (err) {
+        console.error('Error connecting wallet:', err);
+      }
+    }
+  }, []);
+
+  const recordMatchOnChain = useCallback(async (won: boolean, rounds: number, finalHP: number) => {
+    if (!connected || !provider || !account) return null;
+    try {
+      const signer = await provider.getSigner();
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+      const tx = await contract.recordMatch(won, rounds, finalHP);
+      const receipt = await tx.wait();
+      return receipt?.hash || tx.hash;
+    } catch (err) {
+      console.error('Error recording match:', err);
+      return null;
+    }
+  }, [connected, provider, account]);
+
+  return { account, connected, connectWallet, recordMatchOnChain };
 }
 
 function useIsMobile() {
@@ -180,6 +243,7 @@ const globalStyles = `
 function HomeScreen({ setPage }: { setPage: (p: Page) => void }) {
   const isMobile = useIsMobile();
   const { streak, totalWins, totalLosses } = useStreak();
+  const { account, connected, connectWallet } = useWallet();
 
   return (
     <div style={{ background: colors.background, minHeight: '100vh', color: colors.onSurface, fontFamily: 'Inter, sans-serif' }}>
@@ -189,6 +253,7 @@ function HomeScreen({ setPage }: { setPage: (p: Page) => void }) {
         <span style={{ fontSize: 22, fontWeight: 800, color: colors.primary, letterSpacing: '-0.02em' }}>BotBattle</span>
         <nav style={{ display: 'flex', gap: isMobile ? 16 : 32, alignItems: 'center' }}>
           {!isMobile && (<><span onClick={() => setPage('leaderboard')} style={{ color: colors.onSurfaceVariant, cursor: 'pointer', fontSize: 14, fontWeight: 500 }}>Leaderboard</span><span onClick={() => setPage('history')} style={{ color: colors.onSurfaceVariant, cursor: 'pointer', fontSize: 14, fontWeight: 500 }}>History</span></>)}
+          {!connected ? (<button onClick={connectWallet} style={{ background: colors.primary, color: '#fff', border: 'none', borderRadius: 8, padding: '10px 16px', fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>Connect Wallet</button>) : (<div style={{ background: colors.surfaceContainer, border: `1px solid ${colors.outlineVariant}`, borderRadius: 8, padding: '8px 14px', fontSize: 11, fontWeight: 600, color: colors.onSurfaceVariant }}>{account?.substring(0, 6)}...{account?.substring(account.length - 4)}</div>)}
           <button onClick={() => setPage('battle')} style={{ background: colors.primaryContainer, color: '#fff', border: 'none', borderRadius: 8, padding: '10px 24px', fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>Enter Arena</button>
         </nav>
       </header>
@@ -315,6 +380,7 @@ function BattleScreen({ setPage }: { setPage: (p: Page) => void }) {
   const mobilePortrait = isMobile && !isLandscape;
   const sound = useSound();
   const { recordWin, recordLoss } = useStreak();
+  const { account, connected, recordMatchOnChain } = useWallet();
 
   const [playerHP, setPlayerHP] = useState(200);
   const [botHP, setBotHP] = useState(200);
@@ -333,6 +399,8 @@ function BattleScreen({ setPage }: { setPage: (p: Page) => void }) {
   const [showTaunt, setShowTaunt] = useState(false);
   const [roundIntro, setRoundIntro] = useState(true);
   const [damageNum, setDamageNum] = useState<{ value: number; isPlayer: boolean; type: 'hit' | 'block'; key: number } | null>(null);
+  const [txHash, setTxHash] = useState<string | null>(null);
+  const [recordingMatch, setRecordingMatch] = useState(false);
 
   const lastMoveRef = useRef<string | null>(null);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
@@ -437,6 +505,14 @@ function BattleScreen({ setPage }: { setPage: (p: Page) => void }) {
     if (botDead || playerDead || isLastRound) {
       const won = newPlayerHP > newBotHP || botDead;
       await new Promise(r => setTimeout(r, 300));
+      
+      if (won && connected && account) {
+        setRecordingMatch(true);
+        const hash = await recordMatchOnChain(true, roundRef.current, newPlayerHP);
+        if (hash) setTxHash(hash);
+        setRecordingMatch(false);
+      }
+      
       setOver(true); overRef.current = true;
       setWinner(won ? 'You' : 'Bot');
       setPlayerState(won ? 'victory' : 'defeat'); setBotState(won ? 'defeat' : 'victory');
@@ -470,6 +546,7 @@ function BattleScreen({ setPage }: { setPage: (p: Page) => void }) {
     setLastLine(''); setSwipeHint(true);
     setResolving(false); resolvingRef.current = false;
     setDamageNum(null); setShowTaunt(false);
+    setTxHash(null);
   };
 
   const arenaBackground = `linear-gradient(180deg,${colors.surfaceContainerLow} 0%,${colors.background} 100%)`;
@@ -523,11 +600,24 @@ function BattleScreen({ setPage }: { setPage: (p: Page) => void }) {
           </div>
           {won && (
             <div style={{ background: colors.surfaceContainerLow, borderRadius: 10, padding: 14, marginBottom: 20, textAlign: 'left', border: `1px solid ${colors.outlineVariant}` }}>
-              <div style={{ fontWeight: 700, color: colors.secondary, fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
-                <Icon name="check_circle" size={16} color={colors.secondary} />
-                Match recorded on BOT Chain
-              </div>
-              <div style={{ color: colors.onSurfaceVariant, fontSize: 12, marginTop: 4 }}>Connect wallet to verify on-chain</div>
+              {recordingMatch ? (
+                <div style={{ color: colors.onSurfaceVariant, fontSize: 13 }}>Recording on-chain...</div>
+              ) : txHash ? (
+                <>
+                  <div style={{ fontWeight: 700, color: colors.secondary, fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <Icon name="check_circle" size={16} color={colors.secondary} />
+                    Match recorded on BOT Chain
+                  </div>
+                  <div style={{ color: colors.onSurfaceVariant, fontSize: 11, marginTop: 6, fontFamily: 'monospace', wordBreak: 'break-all' }}>
+                    {txHash.substring(0, 10)}...{txHash.substring(txHash.length - 8)}
+                  </div>
+                  <div style={{ color: colors.primary, fontSize: 11, marginTop: 6 }}>
+                    <a href={`https://scan.bohr.life/tx/${txHash}`} target="_blank" rel="noopener noreferrer" style={{ color: colors.primary, textDecoration: 'underline' }}>View on Explorer →</a>
+                  </div>
+                </>
+              ) : (
+                <div style={{ color: colors.onSurfaceVariant, fontSize: 13 }}>Connect wallet to record on-chain</div>
+              )}
             </div>
           )}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
