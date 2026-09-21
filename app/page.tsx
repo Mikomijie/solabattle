@@ -3,6 +3,13 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { ethers } from 'ethers';
 
+// Extend Window type for ethereum
+declare global {
+  interface Window {
+    ethereum?: any;
+  }
+}
+
 const colors = {
   primary: '#3525cd',
   primaryContainer: '#4f46e5',
@@ -92,7 +99,7 @@ function useWallet() {
       if (typeof window !== 'undefined' && window.ethereum) {
         try {
           const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-          if (accounts.length > 0) {
+          if (accounts && accounts.length > 0) {
             setAccount(accounts[0]);
             setConnected(true);
             setProvider(new ethers.BrowserProvider(window.ethereum));
@@ -109,9 +116,11 @@ function useWallet() {
     if (typeof window !== 'undefined' && window.ethereum) {
       try {
         const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        setAccount(accounts[0]);
-        setConnected(true);
-        setProvider(new ethers.BrowserProvider(window.ethereum));
+        if (accounts && accounts.length > 0) {
+          setAccount(accounts[0]);
+          setConnected(true);
+          setProvider(new ethers.BrowserProvider(window.ethereum));
+        }
       } catch (err) {
         console.error('Error connecting wallet:', err);
       }
@@ -239,7 +248,6 @@ const globalStyles = `
   @keyframes screenShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 `;
 
-// ============ HOME SCREEN ============
 function HomeScreen({ setPage }: { setPage: (p: Page) => void }) {
   const isMobile = useIsMobile();
   const { streak, totalWins, totalLosses } = useStreak();
@@ -253,7 +261,7 @@ function HomeScreen({ setPage }: { setPage: (p: Page) => void }) {
         <span style={{ fontSize: 22, fontWeight: 800, color: colors.primary, letterSpacing: '-0.02em' }}>BotBattle</span>
         <nav style={{ display: 'flex', gap: isMobile ? 16 : 32, alignItems: 'center' }}>
           {!isMobile && (<><span onClick={() => setPage('leaderboard')} style={{ color: colors.onSurfaceVariant, cursor: 'pointer', fontSize: 14, fontWeight: 500 }}>Leaderboard</span><span onClick={() => setPage('history')} style={{ color: colors.onSurfaceVariant, cursor: 'pointer', fontSize: 14, fontWeight: 500 }}>History</span></>)}
-          {!connected ? (<button onClick={connectWallet} style={{ background: colors.primary, color: '#fff', border: 'none', borderRadius: 8, padding: '10px 16px', fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>Connect Wallet</button>) : (<div style={{ background: colors.surfaceContainer, border: `1px solid ${colors.outlineVariant}`, borderRadius: 8, padding: '8px 14px', fontSize: 11, fontWeight: 600, color: colors.onSurfaceVariant }}>{account?.substring(0, 6)}...{account?.substring(account.length - 4)}</div>)}
+          {!connected ? (<button onClick={connectWallet} style={{ background: colors.primary, color: '#fff', border: 'none', borderRadius: 8, padding: '10px 16px', fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>Connect Wallet</button>) : (<div style={{ background: colors.surfaceContainer, border: `1px solid ${colors.outlineVariant}`, borderRadius: 8, padding: '8px 14px', fontSize: 11, fontWeight: 600, color: colors.onSurfaceVariant }}>{account?.substring(0, 6)}...{account?.substring(account ? account.length - 4 : 0)}</div>)}
           <button onClick={() => setPage('battle')} style={{ background: colors.primaryContainer, color: '#fff', border: 'none', borderRadius: 8, padding: '10px 24px', fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>Enter Arena</button>
         </nav>
       </header>
@@ -372,7 +380,6 @@ function HomeScreen({ setPage }: { setPage: (p: Page) => void }) {
   );
 }
 
-// ============ BATTLE SCREEN ============
 function BattleScreen({ setPage }: { setPage: (p: Page) => void }) {
   const isMobile = useIsMobile();
   const isLandscape = useOrientation();
@@ -741,7 +748,6 @@ function BattleScreen({ setPage }: { setPage: (p: Page) => void }) {
   );
 }
 
-// ============ LEADERBOARD ============
 function LeaderboardScreen({ setPage }: { setPage: (p: Page) => void }) {
   const isMobile = useIsMobile();
   return (
@@ -758,7 +764,6 @@ function LeaderboardScreen({ setPage }: { setPage: (p: Page) => void }) {
   );
 }
 
-// ============ HISTORY ============
 function HistoryScreen({ setPage }: { setPage: (p: Page) => void }) {
   const isMobile = useIsMobile();
   return (
@@ -775,7 +780,6 @@ function HistoryScreen({ setPage }: { setPage: (p: Page) => void }) {
   );
 }
 
-// ============ MAIN APP ============
 export default function App() {
   const [page, setPage] = useState<Page>('home');
   if (page === 'home') return <HomeScreen setPage={setPage} />;
