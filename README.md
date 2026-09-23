@@ -2,7 +2,7 @@
 
 A 1v1 turn-based combat game on BOT Chain where players battle an undefeated AI opponent. Every victory is recorded permanently on-chain.
 
-**Play Now:** [botbattle.xyz](https://botbattle.xyz) (domain coming soon)
+**Play Now:** https://botbattle.world
 
 ---
 
@@ -46,6 +46,7 @@ Enter a 10-round battle against **CIPHER-X**, an adaptive AI guardian. 200 HP ea
 - ✅ **Responsive Design** — Desktop, tablet, mobile portrait & landscape
 - ✅ **Keyboard Controls** — A = Attack, D = Defend, S = Special
 - ✅ **Swipe Controls** — Mobile: right = Attack, left = Defend, up = Special
+- ✅ **MetaMask Integration** — Connect wallet, record wins on-chain
 
 ---
 
@@ -111,13 +112,14 @@ npm run dev
 - **Contract Address:** `0xf4cd5F16A2558b1C6E3EC3beBC17aA6D00561250`
 - **Explorer:** https://scan.bohr.life
 - **RPC:** https://rpc.bohr.life
-- **Status:** ✅ Deployed & Tested
+- **Status:** ✅ Deployed & Tested (Sept 21, 2026)
 
-### Mainnet (BOT Chain Mainnet - Chain ID 677)
-- **Contract Address:** (pending mainnet deployment)
+### Mainnet (BOT Chain Mainnet - Chain ID 677) — LIVE! 🎉
+- **Contract Address:** `0x679e1e295efb24Eb17c2994AE9782cbc0faaB38D`
 - **Explorer:** https://scan.botchain.ai
 - **RPC:** https://rpc.botchain.ai
-- **Status:** Awaiting BOT token allocation
+- **Transaction:** https://scan.botchain.ai/tx/0x322232b8a19f66449bb357e39769b1011048b6efa5212a88d686dddc0aee3c02
+- **Status:** ✅ LIVE on Mainnet (Sept 23, 2026)
 
 ---
 
@@ -131,12 +133,16 @@ Functions:
 - `getMatchCount(address player)` → total battles played
 - `getMatch(address player, uint256 index)` → individual match details
 
+Events:
+- `MatchRecorded(address indexed player, bool won, uint8 rounds, uint8 finalHP, uint256 timestamp)`
+
 ---
 
 ## Project Info
 
 **Developer:** Michael Omijie (@Mikomijie)  
 **GitHub:** https://github.com/Mikomijie/solabattle  
+**Website:** https://botbattle.world  
 **Built for:** Girl Meets Tech Build Week Hackathon Vol.2  
 **Hackathon Dates:** Sept 18–25, 2026  
 **Submission Deadline:** Sept 25, 2026 11:59 PM GMT+7
