@@ -23,6 +23,7 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/icon?family=Material+Icons"
           rel="stylesheet"
         />
+        <link rel="icon" href="/favicon.ico" />
       </head>
       <body style={{ margin: 0, fontFamily: 'Inter, sans-serif' }}>
         {children}
