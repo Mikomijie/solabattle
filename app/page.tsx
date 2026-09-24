@@ -372,10 +372,13 @@ function HomeScreen({ setPage }: { setPage: (p: Page) => void }) {
         </div>
       </section>
 
-      <footer style={{ padding: isMobile ? '20px' : '20px 48px', borderTop: `1px solid ${colors.outlineVariant}`, display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, fontSize: 13, color: colors.onSurfaceVariant }}>
-        <span style={{ fontWeight: 700, color: colors.primary }}>BotBattle</span>
-        <span style={{ color: colors.secondary, fontWeight: 600 }}>● BOT Chain: Live</span>
-      </footer>
+<footer style={{ padding: isMobile ? '20px' : '20px 48px', backgroundColor: '#1a1a2e', borderTop: `1px solid ${colors.outlineVariant}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, fontSize: 13, color: colors.onSurfaceVariant }}>
+  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+    <img src="/images/botchain-logo.png" alt="BOT Chain" style={{ height: 24 }} />
+    <span style={{ fontWeight: 700, color: colors.primary }}>BotBattle</span>
+  </div>
+  <span style={{ color: colors.secondary, fontWeight: 600 }}>● Powered by BOT Chain</span>
+</footer>
     </div>
   );
 }
