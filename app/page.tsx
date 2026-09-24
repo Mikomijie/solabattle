@@ -377,7 +377,9 @@ function HomeScreen({ setPage }: { setPage: (p: Page) => void }) {
     <img src="/images/botchain-logo.png" alt="BOT Chain" style={{ height: 24 }} />
     <span style={{ fontWeight: 700, color: colors.primary }}>BotBattle</span>
   </div>
-  <span style={{ color: colors.secondary, fontWeight: 600 }}>● Powered by BOT Chain</span>
+  <a href="https://scan.botchain.ai/address/0x679e1e295efb24Eb17c2994AE9782cbc0faaB38D" target="_blank" rel="noopener noreferrer" style={{ color: '#FFFFFF', fontWeight: 600, textDecoration: 'none', cursor: 'pointer' }}>
+    View on Explorer →
+  </a>
 </footer>
     </div>
   );
